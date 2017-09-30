@@ -1,14 +1,17 @@
 //Note that the App will run on port 3000 by default
 //Change the port to 8000 by entering SET PORT=8000 before entering npm start to start the App
-//This app allows finney stakes
+
 import React, { Component } from 'react';
 
-//import logo from './favicon.ICO';
+//import logo from './logo.svg';
 
 import './App.css';
 import Web3 from 'web3'
 import _ from 'lodash'
 
+
+
+var ETHEREUM_CLIENT = new Web3( new Web3.providers.HttpProvider("http://localhost:8545"))
 	
 var epayContractABI = [{"constant":false,"inputs":[{"name":"_settler","type":"address"},{"name":"_units","type":"uint256"}],"name":"confirmOffer","outputs":[],"payable":true,"type":"function"},{"constant":true,"inputs":[],"name":"seller","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_valueT","type":"uint256"}],"name":"tradeContract","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"payVoid","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"unitsT","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"valueT","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"claimBalance","outputs":[],"payable":true,"type":"function"},{"constant":false,"inputs":[],"name":"abort","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"unpostSettlement","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_unitsT","type":"uint256"}],"name":"tradeBuyer","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"confirmSellerTrade","outputs":[],"payable":true,"type":"function"},{"constant":true,"inputs":[],"name":"value","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"confirmContractTrade","outputs":[],"payable":true,"type":"function"},{"constant":true,"inputs":[],"name":"parent","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_valueT","type":"uint256"}],"name":"changeContractTrade","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_contract","type":"address"}],"name":"settle","outputs":[],"payable":true,"type":"function"},{"constant":true,"inputs":[],"name":"buyer","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_outcome","type":"uint256"}],"name":"settleF","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"rent","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"cancelContractTrade","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"confirmBuyerTrade","outputs":[],"payable":true,"type":"function"},{"constant":true,"inputs":[],"name":"units","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_valueT","type":"uint256"}],"name":"tradeSeller","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"settler","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_rent","type":"uint256"}],"name":"setRent","outputs":[],"payable":true,"type":"function"},{"constant":true,"inputs":[],"name":"getTicket","outputs":[{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"address"},{"name":"","type":"address"},{"name":"","type":"address"},{"name":"","type":"address"},{"name":"","type":"uint8"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"state","outputs":[{"name":"","type":"uint8"}],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"lease","outputs":[],"payable":true,"type":"function"},{"constant":false,"inputs":[{"name":"_value","type":"uint256"}],"name":"defineSettlement","outputs":[],"payable":true,"type":"function"},{"constant":false,"inputs":[],"name":"collectFee","outputs":[],"payable":true,"type":"function"},{"constant":false,"inputs":[],"name":"confirmPurchase","outputs":[],"payable":true,"type":"function"},{"constant":false,"inputs":[{"name":"_valueResult","type":"uint256"}],"name":"postResult","outputs":[],"payable":false,"type":"function"},{"inputs":[{"name":"_rent","type":"uint256"},{"name":"_owner","type":"address"}],"payable":true,"type":"constructor"},{"anonymous":false,"inputs":[],"name":"aborted","type":"event"},{"anonymous":false,"inputs":[],"name":"purchaseConfirmed","type":"event"},{"anonymous":false,"inputs":[],"name":"itemReceived","type":"event"}]
 
@@ -17,14 +20,16 @@ var settlerContractABI = [{"constant":false,"inputs":[{"name":"_settler","type":
 
 var contractSpawnContractABI = [{"constant":true,"inputs":[],"name":"a","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"cont","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_rent","type":"uint256"},{"name":"_owner","type":"address"}],"name":"createContract","outputs":[{"name":"","type":"address"}],"payable":true,"type":"function"},{"constant":true,"inputs":[],"name":"getContracts","outputs":[{"name":"","type":"address[]"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"_cont","type":"address"}],"name":"containsContract","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function"},{"inputs":[],"type":"constructor"}]
 
-var epayContractAddress = "0x453778dcd89acd92a84bccac9eefecb4258aac24"
-var contractSpawnAddress = "0x77ec5c540a3c4145522D874c2e96bBd5EB684fB8"
+var epayContractAddress = "0xa7b1a3657a49a4ccba34f41014a2e7edc109075f"
+var contractSpawnAddress = "0x659cecfd1bd632c3708e2ec2d9e2f6569cdcdaca"
 var currentContractAddress = contractSpawnAddress 
 
+var epayContract = ETHEREUM_CLIENT.eth.contract(epayContractABI).at(epayContractAddress)
+var contractSpawnContract = ETHEREUM_CLIENT.eth.contract(contractSpawnContractABI).at(contractSpawnAddress)
+
+ETHEREUM_CLIENT.eth.defaultAccount = ETHEREUM_CLIENT.eth.coinbase;
 class App extends Component {
   
-
-
 		constructor(props){
 			super(props)
 
@@ -43,12 +48,6 @@ class App extends Component {
 				validContracts: [],
 				screen : "List"
 			}
-			
-			//Uses localhost
-			this.ETHEREUM_CLIENT = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-			this.epayContract = this.ETHEREUM_CLIENT.eth.contract(epayContractABI).at(epayContractAddress)
-			this.contractSpawnContract = this.ETHEREUM_CLIENT.eth.contract(contractSpawnContractABI).at(contractSpawnAddress)
-			this.ETHEREUM_CLIENT.eth.defaultAccount = this.ETHEREUM_CLIENT.eth.coinbase;
 
     			//this.handleChange = this.handleChange.bind(this);
     			this.handleClaim = this.handleClaim.bind(this);//
@@ -77,10 +76,10 @@ class App extends Component {
 
 		}
  	handleDefineSettlement(event) {
-		var TF = this.epayContract.defineSettlement(this.ETHEREUM_CLIENT.toWei(event.target.FEE.value, 'finney'), {from: event.target.SELLER.value, gasLimit:90000, gasPrice:20000000000} );
+		var TF = epayContract.defineSettlement(ETHEREUM_CLIENT.toWei(event.target.FEE.value, 'finney'), {from: event.target.SELLER.value, gasLimit:90000, gasPrice:20000000000} );
    		alert('A result was posted: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -100,10 +99,10 @@ class App extends Component {
   	}
  	handlePostResult(event) {
 
-		var TF = this.epayContract.postResult(event.target.RESULT.value, {from: event.target.SELLER.value, gasLimit:90000, gasPrice:20000000000} );
+		var TF = epayContract.postResult(event.target.RESULT.value, {from: event.target.SELLER.value, gasLimit:90000, gasPrice:20000000000} );
    		alert('A result was posted: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -123,10 +122,10 @@ class App extends Component {
   	}
  	handleCollectFee(event) {
 
-		var TF = this.epayContract.collectFee({from: event.target.SELLER.value, gasLimit:90000, gasPrice:20000000000} );
+		var TF = epayContract.collectFee({from: event.target.SELLER.value, gasLimit:90000, gasPrice:20000000000} );
    		alert('A settlement request was submitted: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -147,10 +146,10 @@ class App extends Component {
   	}
  	handleReset(event) {
 
-		var TF = this.epayContract.unpostSettlement({from: event.target.SELLER.value, gasLimit:90000, gasPrice:20000000000} );
+		var TF = epayContract.unpostSettlement({from: event.target.SELLER.value, gasLimit:90000, gasPrice:20000000000} );
    		alert('Reset to pending: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -170,10 +169,10 @@ class App extends Component {
   	}
   	handleClaim(event) {
 
-		var TF = this.epayContract.claimBalance({from: event.target.OWNER.value, gasLimit:90000, gasPrice:20000000000} );
+		var TF = epayContract.claimBalance({from: event.target.OWNER.value, gasLimit:90000, gasPrice:20000000000} );
    		alert('A settlement request was submitted: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -194,10 +193,10 @@ class App extends Component {
   	}
   	handleSetRent(event) {
 
-		var TF = this.epayContract.setRent(this.ETHEREUM_CLIENT.toWei(event.target.RENT.value, 'finney'), {from: event.target.OWNER.value, gasLimit:90000, gasPrice:20000000000} );
+		var TF = epayContract.setRent(ETHEREUM_CLIENT.toWei(event.target.RENT.value, 'finney'), {from: event.target.OWNER.value, gasLimit:90000, gasPrice:20000000000} );
    		alert('A settlement request was submitted: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -218,10 +217,10 @@ class App extends Component {
   	}
   	handleTradeContract(event) {
 
-		var TF = this.epayContract.tradeContract(this.ETHEREUM_CLIENT.toWei(event.target.PRICE.value, 'finney'), {from: event.target.OWNER.value, gasLimit:90000, gasPrice:20000000000} );
+		var TF = epayContract.tradeContract(ETHEREUM_CLIENT.toWei(event.target.PRICE.value, 'finney'), {from: event.target.OWNER.value, gasLimit:90000, gasPrice:20000000000} );
    		alert('A settlement request was submitted: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -242,10 +241,10 @@ class App extends Component {
   	}
   	handleLease(event) {
 
-		var TF = this.epayContract.lease({from: event.target.SELLER.value, value: this.ETHEREUM_CLIENT.toWei(event.target.RENT.value, 'finney'), gasLimit:90000, gasPrice:20000000000} );
+		var TF = epayContract.lease({from: event.target.SELLER.value, value: ETHEREUM_CLIENT.toWei(event.target.RENT.value, 'finney'), gasLimit:90000, gasPrice:20000000000} );
    		alert('A settlement request was submitted: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -266,10 +265,10 @@ class App extends Component {
   	}
   	handleCancelContractTrade(event) {
 
-		var TF = this.epayContract.cancelContractTrade({from: event.target.OWNER.value, gasLimit:90000, gasPrice:20000000000} );
+		var TF = epayContract.cancelContractTrade({from: event.target.OWNER.value, gasLimit:90000, gasPrice:20000000000} );
    		alert('A settlement request was submitted: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -290,10 +289,10 @@ class App extends Component {
   	}
   	handleChangeContractTrade(event) {
 
-		var TF = this.epayContract.changeContractTrade(this.ETHEREUM_CLIENT.toWei(event.target.PRICE.value, 'finney'), {from: event.target.OWNER.value, gasLimit:90000, gasPrice:20000000000} );
+		var TF = epayContract.changeContractTrade(ETHEREUM_CLIENT.toWei(event.target.PRICE.value, 'finney'), {from: event.target.OWNER.value, gasLimit:90000, gasPrice:20000000000} );
    		alert('A settlement request was submitted: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -314,10 +313,10 @@ class App extends Component {
   	}
   	handleConfirmContractTrade(event) {
 
-		var TF = this.epayContract.confirmContractTrade({from: event.target.BUYER.value, value: this.ETHEREUM_CLIENT.toWei(event.target.PRICE.value, 'finney'), gasLimit:90000, gasPrice:20000000000} );
+		var TF = epayContract.confirmContractTrade({from: event.target.BUYER.value, value: ETHEREUM_CLIENT.toWei(event.target.PRICE.value, 'finney'), gasLimit:90000, gasPrice:20000000000} );
    		alert('A settlement request was submitted: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -338,10 +337,10 @@ class App extends Component {
   	}
   	handleOffer(event) {
 
-		var TF = this.epayContract.confirmOffer(event.target.SET.value, this.ETHEREUM_CLIENT.toWei(event.target.UNIT.value, 'ether'),  {from: event.target.SELLER.value, value: this.ETHEREUM_CLIENT.toWei(event.target.VALUE.value, 'ether'), gasLimit:2000000, gasPrice:20000000000} );
+		var TF = epayContract.confirmOffer(event.target.SET.value, ETHEREUM_CLIENT.toWei(event.target.UNIT.value, 'ether'),  {from: event.target.SELLER.value, value: ETHEREUM_CLIENT.toWei(event.target.VALUE.value, 'ether'), gasLimit:2000000, gasPrice:20000000000} );
     		alert('An offer was submitted: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -363,10 +362,10 @@ class App extends Component {
   	}
   	handlePurchase(event) {
 
-		var TF = this.epayContract.confirmPurchase( {from: event.target.BUYER.value, value: this.ETHEREUM_CLIENT.toWei(event.target.VALUE.value, 'ether'), gasLimit:90000, gasPrice:20000000000} );
+		var TF = epayContract.confirmPurchase( {from: event.target.BUYER.value, value: ETHEREUM_CLIENT.toWei(event.target.VALUE.value, 'ether'), gasLimit:90000, gasPrice:20000000000} );
     		alert('An purchase was confirmed: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -386,10 +385,10 @@ class App extends Component {
   	}
 	handleCreate(event) {
 
-		var TF = this.contractSpawnContract.createContract(this.ETHEREUM_CLIENT.toWei(event.target.VALUE.value, 'finney'), event.target.BUYER.value, {from: event.target.BUYER.value, gas:2000000, gasPrice:20000000000} );
+		var TF = contractSpawnContract.createContract(ETHEREUM_CLIENT.toWei(event.target.VALUE.value, 'finney'), event.target.BUYER.value, {from: event.target.BUYER.value, gas:2000000, gasPrice:20000000000} );
     		alert('Created: ' + TF );
 
-		var vCon = this.contractSpawnContract.getContracts();
+		var vCon = contractSpawnContract.getContracts();
 
 		this.setState({validContracts: vCon}, function() {
 			console.log(this.state.validContracts);
@@ -409,10 +408,10 @@ class App extends Component {
   	}
   	handleCancel(event) {
 
-		var TF = this.epayContract.abort( {from: event.target.SELLER.value, gasLimit:90000, gasPrice:20000000000} );
+		var TF = epayContract.abort( {from: event.target.SELLER.value, gasLimit:90000, gasPrice:20000000000} );
     		alert('An cancellation was submitted: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -433,10 +432,10 @@ class App extends Component {
   	}
  	handleSetBuyerPrice(event) {
 
-		var TF = this.epayContract.tradeBuyer(this.ETHEREUM_CLIENT.toWei(event.target.PRICE.value, 'ether'), {from: event.target.BUYER.value, gasLimit:90000, gasPrice:20000000000} );
+		var TF = epayContract.tradeBuyer(ETHEREUM_CLIENT.toWei(event.target.PRICE.value, 'ether'), {from: event.target.BUYER.value, gasLimit:90000, gasPrice:20000000000} );
 		alert('A settlement request was submitted: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -457,10 +456,10 @@ class App extends Component {
   	}
  	handlePurchaseBuyerPosition(event) {
 
-		var TF = this.epayContract.confirmBuyerTrade({from: event.target.BUYER.value, value:this.ETHEREUM_CLIENT.toWei(event.target.PRICE.value, 'ether'), gasLimit:90000, gasPrice:20000000000} );
+		var TF = epayContract.confirmBuyerTrade({from: event.target.BUYER.value, value:ETHEREUM_CLIENT.toWei(event.target.PRICE.value, 'ether'), gasLimit:90000, gasPrice:20000000000} );
 		alert('A settlement request was submitted: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -481,10 +480,10 @@ class App extends Component {
   	}
  	handleSetSellerPrice(event) {
 
-		var TF = this.epayContract.tradeSeller(this.ETHEREUM_CLIENT.toWei(event.target.PRICE.value, 'ether'), {from: event.target.SELLER.value, gasLimit:90000, gasPrice:20000000000} );
+		var TF = epayContract.tradeSeller(ETHEREUM_CLIENT.toWei(event.target.PRICE.value, 'ether'), {from: event.target.SELLER.value, gasLimit:90000, gasPrice:20000000000} );
 		alert('A settlement request was submitted: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -505,10 +504,10 @@ class App extends Component {
   	}
  	handlePurchaseSellerPosition(event) {
 
-		var TF = this.epayContract.confirmSellerTrade({from: event.target.SELLER.value, value:this.ETHEREUM_CLIENT.toWei(event.target.PRICE.value, 'ether'), gasLimit:90000, gasPrice:20000000000} );
+		var TF = epayContract.confirmSellerTrade({from: event.target.SELLER.value, value:ETHEREUM_CLIENT.toWei(event.target.PRICE.value, 'ether'), gasLimit:90000, gasPrice:20000000000} );
 		alert('A settlement request was submitted: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -530,9 +529,9 @@ class App extends Component {
 	handleGetContract(event) {
 		epayContractAddress = event.target.CONTRACT.value
 
-		this.epayContract = this.ETHEREUM_CLIENT.eth.contract(epayContractABI).at(epayContractAddress)
+		epayContract = ETHEREUM_CLIENT.eth.contract(epayContractABI).at(epayContractAddress)
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -558,13 +557,13 @@ class App extends Component {
 //Change the send transaction to the function call within the Settlement contract
 
 		var settlerContractAddress = this.state.set;
-		//var TF = this.ETHEREUM_CLIENT.eth.sendTransaction({from: event.target.SENDER.value, to: this.state.set, value:this.ETHEREUM_CLIENT.toWei(1, 'finney'), gasLimit:90000, gasPrice:20000000000, data: epayContractAddress} ) 
-		var settlerContract = this.ETHEREUM_CLIENT.eth.contract(settlerContractABI).at(settlerContractAddress)
-   		var TF = settlerContract.settle(epayContractAddress ,{from: event.target.SENDER.value, value:this.ETHEREUM_CLIENT.toWei(event.target.FEE.value, 'finney'), gasLimit:90000, gasPrice:20000000000} );
+		//var TF = ETHEREUM_CLIENT.eth.sendTransaction({from: event.target.SENDER.value, to: this.state.set, value:ETHEREUM_CLIENT.toWei(1, 'finney'), gasLimit:90000, gasPrice:20000000000, data: epayContractAddress} ) 
+		var settlerContract = ETHEREUM_CLIENT.eth.contract(settlerContractABI).at(settlerContractAddress)
+   		var TF = settlerContract.settle(epayContractAddress ,{from: event.target.SENDER.value, value:ETHEREUM_CLIENT.toWei(event.target.FEE.value, 'finney'), gasLimit:90000, gasPrice:20000000000} );
 
 		alert('A settlement request was submitted: ' + TF );
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -588,13 +587,13 @@ class App extends Component {
 //
 	componentWillMount(){
 
-		var vCon = this.contractSpawnContract.getContracts();
+		var vCon = contractSpawnContract.getContracts();
 
 		this.setState({validContracts: vCon}, function() {
 			console.log(this.state.validContracts);
 		});
 
-		var valueData = this.epayContract.getTicket();
+		var valueData = epayContract.getTicket();
 		console.log(valueData);
 		this.setState({ 
         			value : valueData[0].c[0],
@@ -624,7 +623,7 @@ class App extends Component {
 if(this.state.screen === "List") { 
 		currentContractAddress = contractSpawnAddress 	
 		_.each(this.state.validContracts, (value, index) => {
-			tablerows4.push(
+			tablerows.push(
 			<tr>
 			  <td>{this.state.validContracts[index]}</td>
 			</tr>
@@ -633,40 +632,38 @@ if(this.state.screen === "List") {
 
 		tablerows2 = [
       			<form onSubmit={this.handleCreate}>
-        			<fieldset>
-        			<legend> CREATE CONTRACT </legend>
-				<tr> Input Address :
-				<input name="BUYER" type="text" />  
-				Input Rent (greater than zero in finney) :
-				<input name="VALUE" type="number"  /> 		
-        			<input type="submit" value="Create Contract" /> </tr>
-				</fieldset>
+        			<label>
+        			Create Contract - Input Address and Rent (greater than zero in finney)
+          			<input name="BUYER" type="text"   />
+          			<input name="VALUE" type="number"  />
+        			</label>
+        			<input type="submit" value="Create Contract" />
       			</form>,
       			<form onSubmit={this.handleGetContract}>
-				<tr>
-				{"Enter an address from below : "}
+				<label>
+				{"Get Contract:"}
           			<input name="CONTRACT" type="text"  />
-        			<input type="submit" value="Get Contract" /> </tr>
+        			</label>
+        			<input type="submit" value="Get Contract" />
       			</form>]
 
 }//List
 if(this.state.screen === "Contract") { 
 		currentContractAddress = epayContractAddress 
-		var ownerAc = this.ETHEREUM_CLIENT.fromWei(this.ETHEREUM_CLIENT.eth.getBalance(this.state.owner), 'ether').toNumber();
+		var ownerAc = ETHEREUM_CLIENT.fromWei(ETHEREUM_CLIENT.eth.getBalance(this.state.owner), 'ether').toNumber();
 		console.log("ownerAc" + ownerAc);
-		var sellerAc = this.ETHEREUM_CLIENT.fromWei(this.ETHEREUM_CLIENT.eth.getBalance(this.state.seller), 'ether').toNumber();
+		var sellerAc = ETHEREUM_CLIENT.fromWei(ETHEREUM_CLIENT.eth.getBalance(this.state.seller), 'ether').toNumber();
 		console.log("sellerAc" + sellerAc);
-		var buyerAc = this.ETHEREUM_CLIENT.fromWei(this.ETHEREUM_CLIENT.eth.getBalance(this.state.buyer), 'ether').toNumber();
+		var buyerAc = ETHEREUM_CLIENT.fromWei(ETHEREUM_CLIENT.eth.getBalance(this.state.buyer), 'ether').toNumber();
 		console.log("buyerAc" + buyerAc);
 		tablerows3 = [
 			<table>
-				<fieldset>
-				<legend> CURRENT VARIABLES </legend>				
+				<thead>				
 				<th>Owner Balance</th>				
 				<th>Seller Balance</th>				
 				<th>Buyer Balance</th>
 				<th></th>				
-							
+				</thead>			
 				<tr>
 			  	<td>{ownerAc}</td> 
 			  	<td>{sellerAc}</td>
@@ -678,7 +675,6 @@ if(this.state.screen === "Contract") {
 			  	<td>{this.state.seller}</td>
 			  	<td>{this.state.buyer}</td>  
 				</tr>
-				</fieldset>
 			</table> 
 			]
 		tablerows4 = [
@@ -694,61 +690,54 @@ if(this.state.screen === "Contract") {
 		if(this.state.contractState === 1) {
 		tablerows = [
       			<form onSubmit={this.handleClaim}>
-				<fieldset>
-				<legend> OWNER CLAIM BALANCE </legend>
-				<tr>{"Enter Owner Address:"}
+				<label>
+				{"Enter Owner Address:"}
           			<input name="OWNER" type="text"  />
-        			<input type="submit" value="Claim Balance" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Claim Balance" />
       			</form>,
       			<form onSubmit={this.handleSetRent}>
-				<fieldset>
-				<legend> OWNER SET RENT </legend>
-				<tr> {"Enter Owner Address:"}
+				<label>
+				{"Enter Owner Address:"}
           			<input name="OWNER" type="text"  />
 				{"Enter rent (finney):"}
           			<input name="RENT" type="number"   />
-        			<input type="submit" value="Set Rent" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Set Rent" />
       			</form>,
       			<form onSubmit={this.handleTradeContract}>
-				<fieldset>
-				<legend> OWNER SELL CONTRACT </legend>
-				<tr> {"Enter Owner Address:"}
+				<label>
+				{"Enter Owner Address:"}
           			<input name="OWNER" type="text"  />
 				{"Enter sale price (finney):"}
           			<input name="PRICE" type="number"   />
-        			<input type="submit" value="Contract Trade Price" /></tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Contract Trade Price" />
       			</form>,
       			<form onSubmit={this.handleLease}>
-				<fieldset>
-				<legend> LEASE CONTRACT </legend>
-				<tr> 
-				{"Enter Leaser Address:"}
+				<label>
+				{"Enter Seller Address:"}
           			<input name="SELLER" type="text"  />
 				{"Enter rent (finney):"}
           			<input name="RENT" type="number"   />
-        			<input type="submit" value="Lease Contract" /></tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Lease Contract" />
       			</form>
 			]
 		tablerows1 = []	
 		tablerows2 = [
 			<table>
-				<fieldset>
-				<legend> CONTRACT VARIABLES </legend>			
+				<thead>				
 				<th>Rent (finney)</th>				
 				<th>Owner</th>				
 				<th>State</th>
 				<th></th>				
-							
+				</thead>			
 				<tr>
 			  	<td>{this.state.rent/10}</td> 
 			  	<td>{this.state.owner}</td>
 			  	<td>{this.state.contractState}</td>  
 				</tr>
-				</fieldset>
 			</table> 
 			] 
 		}
@@ -756,9 +745,8 @@ if(this.state.screen === "Contract") {
 		tablerows = [
 
       			<form onSubmit={this.handleOffer}>
-				<fieldset>
-				<legend> POST CONTINGENT PAYMENT CONTRACT </legend>
-				<tr> {"Enter Settler Address:"}
+				<label>
+				{"Enter Settler Address:"}
           			<input name="SET" type="text"  />
 				{"Enter Seller Address:"}
           			<input name="SELLER" type="text"  />
@@ -766,69 +754,64 @@ if(this.state.screen === "Contract") {
           			<input name="UNIT" type="number"   />
 				{"Enter bid (ether):"}
           			<input name="VALUE" type="number"   />
-        			<input type="submit" value="Place Bid" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Place Bid" />
       			</form>
 			]
 		tablerows1 = [
       			<form onSubmit={this.handleDefineSettlement}>
-				<fieldset>
-				<legend> POST SETTLEMENT CONTRACT </legend>
-				<tr> {"Enter Seller Address:"}
+				<label>
+				{"Enter Seller Address:"}
           			<input name="SELLER" type="text"  />
 				{"Enter fee (finney):"}
           			<input name="FEE" type="number"   />
-        			<input type="submit" value="Define Settlement" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Define Settlement" />
       			</form>
 			]	
 		tablerows2 = [
 			<table>
-				<fieldset>
-				<legend> CONTRACT </legend>			
+				<thead>				
 				<th>Seller</th>		
 				<th>State</th>
-				<th></th>							
+				<th></th>				
+				</thead>			
 				<tr>
 			  	<td>{this.state.seller}</td> 
 			  	<td>{this.state.contractState}</td>  
 				</tr>
-				</fieldset>
 			</table> 
 			] 
 		}		
 		if(this.state.contractState === 3) {
 		tablerows = [
       			<form onSubmit={this.handlePurchase}>
-				<fieldset>
-				<legend> BUYER ACCEPT OFFER </legend>
-        			<tr> Input Buyer Address :
+        			<label>
+        			Input Purchase
           			<input name="BUYER" type="text"   />
-        			Input Units (ether) :
           			<input name="VALUE" type="number"  />
-        			<input type="submit" value="Purchase" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Purchase" />
       			</form>]
       		tablerows1= [
 			<form onSubmit={this.handleCancel}>
-				<fieldset>
-				<legend> SELLER CANCEL OFFER </legend>
-        			<tr> Seller Address :
+        			<label>
+        			Cancel
           			<input name="SELLER" type="text"  />
-        			<input type="submit" value="Cancel" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Cancel" />
       			</form>
 			]
 		tablerows2 = [
 			<table>
-				<fieldset>
-				<legend> CONTINGENT PAYMENT CONTRACT </legend>			
+				<thead>				
 				<th>Units (ether)</th>			
 				<th>Value (ether)</th>			
 				<th>Settlement</th>			
 				<th>Seller</th>
 				<th>State</th>
-				<th></th>							
+				<th></th>				
+				</thead>			
 				<tr>
 			  	<td>{this.state.units/10000}</td>
 			  	<td>{this.state.value/10000}</td>
@@ -836,86 +819,68 @@ if(this.state.screen === "Contract") {
 			  	<td>{this.state.seller}</td>
 			  	<td>{this.state.contractState}</td>  
 				</tr>
-				</fieldset>
 			</table> 
 			] 	
 		}
 		if(this.state.contractState ===4) {
 		tablerows = [
 			<table>
-				<fieldset>
-				<legend> CONTRACT POSITION PRICES </legend>					
+				<thead>				
 				<th>Buyer Position Price</th>			
 				<th>Seller Position Price</th>			
 				<th></th>				
-			
+				</thead>			
 				<tr>
 			  	<td>{this.state.unitsT/10000}</td>
 			  	<td>{this.state.valueT/10000}</td>
 				</tr>
-				</fieldset>
 			</table>
 			]
 		tablerows1= [
 			<form onSubmit={this.handleSetBuyerPrice}>
- 				<fieldset>
-				<legend> CHANGE BUYER POSITION PRICE </legend>
-        			<tr> Input Buyer Address :
+        			<label>
+        			Change Buy Price
           			<input name="BUYER" type="text"   />
-				New Buyer Postion Price (ether) :
           			<input name="PRICE" type="number"  />
-        			<input type="submit" value="BuyerPrice" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="BuyerPrice" />
       			</form>,
 			<form onSubmit={this.handlePurchaseBuyerPosition}>
- 				<fieldset>
-				<legend> PURCHASE BUYER POSITION </legend>
-        			<tr> 
-        			Input Address :
+        			<label>
+        			Purchase Buyer Position
           			<input name="BUYER" type="text"   />
-				Input Price (ether) :
           			<input name="PRICE" type="number"  />
-        			<input type="submit" value="PurchaseBuyerPosition" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="PurchaseBuyerPosition" />
       			</form>,
 			<form onSubmit={this.handleSetSellerPrice}>
- 				<fieldset>
-				<legend> CHANGE SELLER POSITION PRICE </legend>
-        			<tr> 
-        			Input Address :
+        			<label>
+        			Change Sell Price
           			<input name="SELLER" type="text"   />
-				Input Price (ether) :
           			<input name="PRICE" type="number"  />
-        			<input type="submit" value="SellerPrice" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="SellerPrice" />
       			</form>,
 			<form onSubmit={this.handlePurchaseSellerPosition}>
- 				<fieldset>
-				<legend> PURCHASE SELLER POSITION </legend>
-        			<tr>
-        			Input Address : 
+        			<label>
+        			Purchase Seller Position
           			<input name="SELLER" type="text"   />
-				Input Price (ether) :
           			<input name="PRICE" type="number"  />
-        			<input type="submit" value="PurchaseSellerPosition" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="PurchaseSellerPosition" />
       			</form>,
 			<form onSubmit={this.handleSettle}>
- 				<fieldset>
-				<legend> SETTLE CONTINGENT PAYMENT CONTRACT </legend>
-        			<tr>
-        			Input Address : 
+        			<label>
+        			Settle
           			<input name="SENDER" type="text"   />
-        			Input Settlement Fee (finney) : 
           			<input name="FEE" type="number"  />
-        			<input type="submit" value="Settle" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Settle" />
       			</form>
 			]
 		tablerows2 = [
 			<table>
-				<fieldset>
-				<legend> CONTINGENT PAYMENT CONTRACT </legend>			
+				<thead>				
 				<th>Units (ether)</th>			
 				<th>Value (ether)</th>			
 				<th>Settlement</th>			
@@ -924,6 +889,7 @@ if(this.state.screen === "Contract") {
 				<th>State</th>
 				<th>Settlement</th>
 				<th></th>				
+				</thead>			
 				<tr>
 			  	<td>{this.state.units/10000}</td>
 			  	<td>{this.state.value/10000}</td>
@@ -933,42 +899,35 @@ if(this.state.screen === "Contract") {
 			  	<td>{this.state.contractState}</td>  
 			  	<td>{this.state.settle}</td> 
 				</tr>
-				</fieldset>
 			</table> 
 			]
 		}
 		if(this.state.contractState === 5) {
 		tablerows = [
       			<form onSubmit={this.handleCancelContractTrade}>
-				<fieldset>
-				<legend> CANCEL CONTRACT TRADE </legend> <tr>
+				<label>
 				{"Enter Owner Address:"}
           			<input name="OWNER" type="text"  />
+        			</label>
         			<input type="submit" value="Cancel Contract Trade" />
-				</tr>
-				</fieldset>
       			</form>,
       			<form onSubmit={this.handleChangeContractTrade}>
-				<fieldset>
-				<legend> CHANGE CONTRACT PRICE </legend> <tr>
-				{"Enter Owner Address :"}
+				<label>
+				{"Enter Owner Address:"}
           			<input name="OWNER" type="text"  />
-				{"Enter new contract price (finney) :"}
+				{"Enter new contract price (finney):"}
           			<input name="PRICE" type="number"   />
+        			</label>
         			<input type="submit" value="Change Contract Trade Price" />
-				</tr>
-				</fieldset>
       			</form>,
       			<form onSubmit={this.handleConfirmContractTrade}>
-				<fieldset>
-				<legend> PURCHASE CONTRACT </legend> <tr>
-				{"Enter Buyer Address :"}
+				<label>
+				{"Enter Buyer Address:"}
           			<input name="BUYER" type="text"  />
-				{"Enter contract price (finney) :"}
+				{"Enter contract price (finney):"}
           			<input name="PRICE" type="number"   />
+        			</label>
         			<input type="submit" value="Purchase Contract" />
-				</tr>
-				</fieldset>
       			</form>
 			]
 		tablerows1 = []	
@@ -991,68 +950,75 @@ if(this.state.screen === "Contract") {
 		if(this.state.contractState === 6) {
 		tablerows = [
  			<table>
-				<fieldset>
-				<legend> CONTRACT </legend>			
+				<thead>				
 				<th>Fee</th>			
 				<th>Reporter</th>				
-				<th>State</th>								
+				<th>State</th>					
+				</thead>			
 				<tr>
 			  	<td>{this.state.value/10}</td> 
 			  	<td>{this.state.seller}</td>
 			  	<td>{this.state.contractState}</td>  
  				</tr>
-				</fieldset>
 			</table> 
 			]
 		tablerows1 = []	
 		tablerows2 = [
       			<form onSubmit={this.handlePostResult}>
-				<fieldset>
-				<legend> POST RESULT </legend>
-				<tr> {"Enter Reporter Address:"}
+				<label>
+				{"Enter Reporter Address:"}
           			<input name="SELLER" type="text"  />
 				{"Enter Result [0,1000]:"}
           			<input name="RESULT" type="number"   />
-        			<input type="submit" value="Post Result" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Post Result" />
       			</form>,
+      			<form onSubmit={this.handleList}>
+				<label>
+				{""}
+        			</label>
+        			<input type="submit" value="Back to List" />
+      			</form>
 			] 
 		}
 		if(this.state.contractState === 7) {
 		tablerows = [
 			<table>
-				<fieldset>
-				<legend> SETTLEMENT CONTRACT </legend>			
+				<thead>				
 				<th>Fee</th>			
 				<th>Reporter</th>				
 				<th>State</th>				
-				<th>Result</th>			
+				<th>Result</th>					
+				</thead>			
 				<tr>
 			  	<td>{this.state.value/10}</td> 
 			  	<td>{this.state.seller}</td>
 			  	<td>{this.state.contractState}</td> 
 			  	<td>{this.state.units}</td>  
  				</tr>
-				</fieldset>
 			</table> 
 			]
 		tablerows2 = [
       			<form onSubmit={this.handleCollectFee}>
-				<fieldset>
-				<legend> COLLECT FEES AND CLOSE SETTLEMENT CONTRACT </legend>
-				<tr> {"Enter Reporter Address:"}
+				<label>
+				{"Enter Reporter Address:"}
           			<input name="SELLER" type="text"  />
-        			<input type="submit" value="Collect Fees and Close" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Collect Fees and Close" />
       			</form>,
       			<form onSubmit={this.handleReset}>
-				<fieldset>
-				<legend> CANCEL POSTED RESULT AND RETURN TO PENDING </legend>
-				<tr> {"Enter Reporter Address:"}
+				<label>
+				{"Enter Reporter Address:"}
           			<input name="Seller" type="text"  />
-        			<input type="submit" value="Return to Pending" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Return to Pending" />
       			</form>,
+      			<form onSubmit={this.handleList}>
+				<label>
+				{""}
+        			</label>
+        			<input type="submit" value="Back to List" />
+      			</form>
 			]
 		}
 }//Contract
@@ -1063,7 +1029,7 @@ if(this.state.screen === "Contract") {
 			<div className="App-header">
 
 				<thead>								
-				<tb>CONTRACT</tb>	
+				<tb>CONTRACTS</tb>	
 				</thead>
 				<tr>
 			  	<td>Contract Address---</td>

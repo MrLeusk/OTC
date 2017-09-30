@@ -1,11 +1,13 @@
 {
-  "name": "otcreact",
+  "name": "peoplelistui",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1",
-    "react-scripts": "1.0.12"
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4"
+ , "web3": "^0.17.0-alpha", "lodash": "^4.15.0" },
+  "devDependencies": {
+    "react-scripts": "0.9.5"
   },
   "scripts": {
     "start": "react-scripts start",

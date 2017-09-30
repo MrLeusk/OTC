@@ -3,7 +3,7 @@
 //This app allows finney stakes
 import React, { Component } from 'react';
 
-//import logo from './favicon.ICO';
+//import logo from './logo.svg';
 
 import './App.css';
 import Web3 from 'web3'
@@ -23,8 +23,6 @@ var currentContractAddress = contractSpawnAddress
 
 class App extends Component {
   
-
-
 		constructor(props){
 			super(props)
 
@@ -44,8 +42,17 @@ class App extends Component {
 				screen : "List"
 			}
 			
-			//Uses localhost
-			this.ETHEREUM_CLIENT = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+
+			// Checking if Web3 has been injected by the browser (Mist/MetaMask)
+			if (typeof this.web3 !== 'undefined') {
+		    	// Use Mist/MetaMask's provider
+			    window.web3 = new Web3(this.web3.currentProvider);
+			} else {
+			    console.log('No web3? You should consider trying MetaMask!')
+			    // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
+			    window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+			}
+			this.ETHEREUM_CLIENT = window.web3;
 			this.epayContract = this.ETHEREUM_CLIENT.eth.contract(epayContractABI).at(epayContractAddress)
 			this.contractSpawnContract = this.ETHEREUM_CLIENT.eth.contract(contractSpawnContractABI).at(contractSpawnAddress)
 			this.ETHEREUM_CLIENT.eth.defaultAccount = this.ETHEREUM_CLIENT.eth.coinbase;
@@ -624,7 +631,7 @@ class App extends Component {
 if(this.state.screen === "List") { 
 		currentContractAddress = contractSpawnAddress 	
 		_.each(this.state.validContracts, (value, index) => {
-			tablerows4.push(
+			tablerows.push(
 			<tr>
 			  <td>{this.state.validContracts[index]}</td>
 			</tr>
@@ -633,20 +640,19 @@ if(this.state.screen === "List") {
 
 		tablerows2 = [
       			<form onSubmit={this.handleCreate}>
-        			<fieldset>
-        			<legend> CREATE CONTRACT </legend>
-				<tr> Input Address :
-				<input name="BUYER" type="text" />  
-				Input Rent (greater than zero in finney) :
-				<input name="VALUE" type="number"  /> 		
-        			<input type="submit" value="Create Contract" /> </tr>
-				</fieldset>
+        			<label>
+        			Create Contract - Input Address and Rent (greater than zero in finney)
+          			<input name="BUYER" type="text"   />
+          			<input name="VALUE" type="number"  />
+        			</label>
+        			<input type="submit" value="Create Contract" />
       			</form>,
       			<form onSubmit={this.handleGetContract}>
-				<tr>
-				{"Enter an address from below : "}
+				<label>
+				{"Get Contract:"}
           			<input name="CONTRACT" type="text"  />
-        			<input type="submit" value="Get Contract" /> </tr>
+        			</label>
+        			<input type="submit" value="Get Contract" />
       			</form>]
 
 }//List
@@ -660,13 +666,12 @@ if(this.state.screen === "Contract") {
 		console.log("buyerAc" + buyerAc);
 		tablerows3 = [
 			<table>
-				<fieldset>
-				<legend> CURRENT VARIABLES </legend>				
+				<thead>				
 				<th>Owner Balance</th>				
 				<th>Seller Balance</th>				
 				<th>Buyer Balance</th>
 				<th></th>				
-							
+				</thead>			
 				<tr>
 			  	<td>{ownerAc}</td> 
 			  	<td>{sellerAc}</td>
@@ -678,7 +683,6 @@ if(this.state.screen === "Contract") {
 			  	<td>{this.state.seller}</td>
 			  	<td>{this.state.buyer}</td>  
 				</tr>
-				</fieldset>
 			</table> 
 			]
 		tablerows4 = [
@@ -694,61 +698,54 @@ if(this.state.screen === "Contract") {
 		if(this.state.contractState === 1) {
 		tablerows = [
       			<form onSubmit={this.handleClaim}>
-				<fieldset>
-				<legend> OWNER CLAIM BALANCE </legend>
-				<tr>{"Enter Owner Address:"}
+				<label>
+				{"Enter Owner Address:"}
           			<input name="OWNER" type="text"  />
-        			<input type="submit" value="Claim Balance" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Claim Balance" />
       			</form>,
       			<form onSubmit={this.handleSetRent}>
-				<fieldset>
-				<legend> OWNER SET RENT </legend>
-				<tr> {"Enter Owner Address:"}
+				<label>
+				{"Enter Owner Address:"}
           			<input name="OWNER" type="text"  />
 				{"Enter rent (finney):"}
           			<input name="RENT" type="number"   />
-        			<input type="submit" value="Set Rent" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Set Rent" />
       			</form>,
       			<form onSubmit={this.handleTradeContract}>
-				<fieldset>
-				<legend> OWNER SELL CONTRACT </legend>
-				<tr> {"Enter Owner Address:"}
+				<label>
+				{"Enter Owner Address:"}
           			<input name="OWNER" type="text"  />
 				{"Enter sale price (finney):"}
           			<input name="PRICE" type="number"   />
-        			<input type="submit" value="Contract Trade Price" /></tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Contract Trade Price" />
       			</form>,
       			<form onSubmit={this.handleLease}>
-				<fieldset>
-				<legend> LEASE CONTRACT </legend>
-				<tr> 
-				{"Enter Leaser Address:"}
+				<label>
+				{"Enter Seller Address:"}
           			<input name="SELLER" type="text"  />
 				{"Enter rent (finney):"}
           			<input name="RENT" type="number"   />
-        			<input type="submit" value="Lease Contract" /></tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Lease Contract" />
       			</form>
 			]
 		tablerows1 = []	
 		tablerows2 = [
 			<table>
-				<fieldset>
-				<legend> CONTRACT VARIABLES </legend>			
+				<thead>				
 				<th>Rent (finney)</th>				
 				<th>Owner</th>				
 				<th>State</th>
 				<th></th>				
-							
+				</thead>			
 				<tr>
 			  	<td>{this.state.rent/10}</td> 
 			  	<td>{this.state.owner}</td>
 			  	<td>{this.state.contractState}</td>  
 				</tr>
-				</fieldset>
 			</table> 
 			] 
 		}
@@ -756,9 +753,8 @@ if(this.state.screen === "Contract") {
 		tablerows = [
 
       			<form onSubmit={this.handleOffer}>
-				<fieldset>
-				<legend> POST CONTINGENT PAYMENT CONTRACT </legend>
-				<tr> {"Enter Settler Address:"}
+				<label>
+				{"Enter Settler Address:"}
           			<input name="SET" type="text"  />
 				{"Enter Seller Address:"}
           			<input name="SELLER" type="text"  />
@@ -766,69 +762,64 @@ if(this.state.screen === "Contract") {
           			<input name="UNIT" type="number"   />
 				{"Enter bid (ether):"}
           			<input name="VALUE" type="number"   />
-        			<input type="submit" value="Place Bid" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Place Bid" />
       			</form>
 			]
 		tablerows1 = [
       			<form onSubmit={this.handleDefineSettlement}>
-				<fieldset>
-				<legend> POST SETTLEMENT CONTRACT </legend>
-				<tr> {"Enter Seller Address:"}
+				<label>
+				{"Enter Seller Address:"}
           			<input name="SELLER" type="text"  />
 				{"Enter fee (finney):"}
           			<input name="FEE" type="number"   />
-        			<input type="submit" value="Define Settlement" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Define Settlement" />
       			</form>
 			]	
 		tablerows2 = [
 			<table>
-				<fieldset>
-				<legend> CONTRACT </legend>			
+				<thead>				
 				<th>Seller</th>		
 				<th>State</th>
-				<th></th>							
+				<th></th>				
+				</thead>			
 				<tr>
 			  	<td>{this.state.seller}</td> 
 			  	<td>{this.state.contractState}</td>  
 				</tr>
-				</fieldset>
 			</table> 
 			] 
 		}		
 		if(this.state.contractState === 3) {
 		tablerows = [
       			<form onSubmit={this.handlePurchase}>
-				<fieldset>
-				<legend> BUYER ACCEPT OFFER </legend>
-        			<tr> Input Buyer Address :
+        			<label>
+        			Input Purchase
           			<input name="BUYER" type="text"   />
-        			Input Units (ether) :
           			<input name="VALUE" type="number"  />
-        			<input type="submit" value="Purchase" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Purchase" />
       			</form>]
       		tablerows1= [
 			<form onSubmit={this.handleCancel}>
-				<fieldset>
-				<legend> SELLER CANCEL OFFER </legend>
-        			<tr> Seller Address :
+        			<label>
+        			Cancel
           			<input name="SELLER" type="text"  />
-        			<input type="submit" value="Cancel" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Cancel" />
       			</form>
 			]
 		tablerows2 = [
 			<table>
-				<fieldset>
-				<legend> CONTINGENT PAYMENT CONTRACT </legend>			
+				<thead>				
 				<th>Units (ether)</th>			
 				<th>Value (ether)</th>			
 				<th>Settlement</th>			
 				<th>Seller</th>
 				<th>State</th>
-				<th></th>							
+				<th></th>				
+				</thead>			
 				<tr>
 			  	<td>{this.state.units/10000}</td>
 			  	<td>{this.state.value/10000}</td>
@@ -836,86 +827,68 @@ if(this.state.screen === "Contract") {
 			  	<td>{this.state.seller}</td>
 			  	<td>{this.state.contractState}</td>  
 				</tr>
-				</fieldset>
 			</table> 
 			] 	
 		}
 		if(this.state.contractState ===4) {
 		tablerows = [
 			<table>
-				<fieldset>
-				<legend> CONTRACT POSITION PRICES </legend>					
+				<thead>				
 				<th>Buyer Position Price</th>			
 				<th>Seller Position Price</th>			
 				<th></th>				
-			
+				</thead>			
 				<tr>
 			  	<td>{this.state.unitsT/10000}</td>
 			  	<td>{this.state.valueT/10000}</td>
 				</tr>
-				</fieldset>
 			</table>
 			]
 		tablerows1= [
 			<form onSubmit={this.handleSetBuyerPrice}>
- 				<fieldset>
-				<legend> CHANGE BUYER POSITION PRICE </legend>
-        			<tr> Input Buyer Address :
+        			<label>
+        			Change Buy Price
           			<input name="BUYER" type="text"   />
-				New Buyer Postion Price (ether) :
           			<input name="PRICE" type="number"  />
-        			<input type="submit" value="BuyerPrice" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="BuyerPrice" />
       			</form>,
 			<form onSubmit={this.handlePurchaseBuyerPosition}>
- 				<fieldset>
-				<legend> PURCHASE BUYER POSITION </legend>
-        			<tr> 
-        			Input Address :
+        			<label>
+        			Purchase Buyer Position
           			<input name="BUYER" type="text"   />
-				Input Price (ether) :
           			<input name="PRICE" type="number"  />
-        			<input type="submit" value="PurchaseBuyerPosition" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="PurchaseBuyerPosition" />
       			</form>,
 			<form onSubmit={this.handleSetSellerPrice}>
- 				<fieldset>
-				<legend> CHANGE SELLER POSITION PRICE </legend>
-        			<tr> 
-        			Input Address :
+        			<label>
+        			Change Sell Price
           			<input name="SELLER" type="text"   />
-				Input Price (ether) :
           			<input name="PRICE" type="number"  />
-        			<input type="submit" value="SellerPrice" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="SellerPrice" />
       			</form>,
 			<form onSubmit={this.handlePurchaseSellerPosition}>
- 				<fieldset>
-				<legend> PURCHASE SELLER POSITION </legend>
-        			<tr>
-        			Input Address : 
+        			<label>
+        			Purchase Seller Position
           			<input name="SELLER" type="text"   />
-				Input Price (ether) :
           			<input name="PRICE" type="number"  />
-        			<input type="submit" value="PurchaseSellerPosition" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="PurchaseSellerPosition" />
       			</form>,
 			<form onSubmit={this.handleSettle}>
- 				<fieldset>
-				<legend> SETTLE CONTINGENT PAYMENT CONTRACT </legend>
-        			<tr>
-        			Input Address : 
+        			<label>
+        			Settle
           			<input name="SENDER" type="text"   />
-        			Input Settlement Fee (finney) : 
           			<input name="FEE" type="number"  />
-        			<input type="submit" value="Settle" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Settle" />
       			</form>
 			]
 		tablerows2 = [
 			<table>
-				<fieldset>
-				<legend> CONTINGENT PAYMENT CONTRACT </legend>			
+				<thead>				
 				<th>Units (ether)</th>			
 				<th>Value (ether)</th>			
 				<th>Settlement</th>			
@@ -924,6 +897,7 @@ if(this.state.screen === "Contract") {
 				<th>State</th>
 				<th>Settlement</th>
 				<th></th>				
+				</thead>			
 				<tr>
 			  	<td>{this.state.units/10000}</td>
 			  	<td>{this.state.value/10000}</td>
@@ -933,42 +907,35 @@ if(this.state.screen === "Contract") {
 			  	<td>{this.state.contractState}</td>  
 			  	<td>{this.state.settle}</td> 
 				</tr>
-				</fieldset>
 			</table> 
 			]
 		}
 		if(this.state.contractState === 5) {
 		tablerows = [
       			<form onSubmit={this.handleCancelContractTrade}>
-				<fieldset>
-				<legend> CANCEL CONTRACT TRADE </legend> <tr>
+				<label>
 				{"Enter Owner Address:"}
           			<input name="OWNER" type="text"  />
+        			</label>
         			<input type="submit" value="Cancel Contract Trade" />
-				</tr>
-				</fieldset>
       			</form>,
       			<form onSubmit={this.handleChangeContractTrade}>
-				<fieldset>
-				<legend> CHANGE CONTRACT PRICE </legend> <tr>
-				{"Enter Owner Address :"}
+				<label>
+				{"Enter Owner Address:"}
           			<input name="OWNER" type="text"  />
-				{"Enter new contract price (finney) :"}
+				{"Enter new contract price (finney):"}
           			<input name="PRICE" type="number"   />
+        			</label>
         			<input type="submit" value="Change Contract Trade Price" />
-				</tr>
-				</fieldset>
       			</form>,
       			<form onSubmit={this.handleConfirmContractTrade}>
-				<fieldset>
-				<legend> PURCHASE CONTRACT </legend> <tr>
-				{"Enter Buyer Address :"}
+				<label>
+				{"Enter Buyer Address:"}
           			<input name="BUYER" type="text"  />
-				{"Enter contract price (finney) :"}
+				{"Enter contract price (finney):"}
           			<input name="PRICE" type="number"   />
+        			</label>
         			<input type="submit" value="Purchase Contract" />
-				</tr>
-				</fieldset>
       			</form>
 			]
 		tablerows1 = []	
@@ -991,68 +958,75 @@ if(this.state.screen === "Contract") {
 		if(this.state.contractState === 6) {
 		tablerows = [
  			<table>
-				<fieldset>
-				<legend> CONTRACT </legend>			
+				<thead>				
 				<th>Fee</th>			
 				<th>Reporter</th>				
-				<th>State</th>								
+				<th>State</th>					
+				</thead>			
 				<tr>
 			  	<td>{this.state.value/10}</td> 
 			  	<td>{this.state.seller}</td>
 			  	<td>{this.state.contractState}</td>  
  				</tr>
-				</fieldset>
 			</table> 
 			]
 		tablerows1 = []	
 		tablerows2 = [
       			<form onSubmit={this.handlePostResult}>
-				<fieldset>
-				<legend> POST RESULT </legend>
-				<tr> {"Enter Reporter Address:"}
+				<label>
+				{"Enter Reporter Address:"}
           			<input name="SELLER" type="text"  />
 				{"Enter Result [0,1000]:"}
           			<input name="RESULT" type="number"   />
-        			<input type="submit" value="Post Result" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Post Result" />
       			</form>,
+      			<form onSubmit={this.handleList}>
+				<label>
+				{""}
+        			</label>
+        			<input type="submit" value="Back to List" />
+      			</form>
 			] 
 		}
 		if(this.state.contractState === 7) {
 		tablerows = [
 			<table>
-				<fieldset>
-				<legend> SETTLEMENT CONTRACT </legend>			
+				<thead>				
 				<th>Fee</th>			
 				<th>Reporter</th>				
 				<th>State</th>				
-				<th>Result</th>			
+				<th>Result</th>					
+				</thead>			
 				<tr>
 			  	<td>{this.state.value/10}</td> 
 			  	<td>{this.state.seller}</td>
 			  	<td>{this.state.contractState}</td> 
 			  	<td>{this.state.units}</td>  
  				</tr>
-				</fieldset>
 			</table> 
 			]
 		tablerows2 = [
       			<form onSubmit={this.handleCollectFee}>
-				<fieldset>
-				<legend> COLLECT FEES AND CLOSE SETTLEMENT CONTRACT </legend>
-				<tr> {"Enter Reporter Address:"}
+				<label>
+				{"Enter Reporter Address:"}
           			<input name="SELLER" type="text"  />
-        			<input type="submit" value="Collect Fees and Close" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Collect Fees and Close" />
       			</form>,
       			<form onSubmit={this.handleReset}>
-				<fieldset>
-				<legend> CANCEL POSTED RESULT AND RETURN TO PENDING </legend>
-				<tr> {"Enter Reporter Address:"}
+				<label>
+				{"Enter Reporter Address:"}
           			<input name="Seller" type="text"  />
-        			<input type="submit" value="Return to Pending" /> </tr>
-				</fieldset>
+        			</label>
+        			<input type="submit" value="Return to Pending" />
       			</form>,
+      			<form onSubmit={this.handleList}>
+				<label>
+				{""}
+        			</label>
+        			<input type="submit" value="Back to List" />
+      			</form>
 			]
 		}
 }//Contract
@@ -1063,7 +1037,7 @@ if(this.state.screen === "Contract") {
 			<div className="App-header">
 
 				<thead>								
-				<tb>CONTRACT</tb>	
+				<tb>CONTRACTS</tb>	
 				</thead>
 				<tr>
 			  	<td>Contract Address---</td>
